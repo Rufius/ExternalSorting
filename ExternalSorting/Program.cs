@@ -1,15 +1,8 @@
 ﻿namespace ExternalSorting {
     internal class Program {
-        static void Main(string[] args) {
-            Sort("sample.txt");
-        }
-
-        static void Sort(string filePath) {
-            var lines = File.ReadLines(filePath).ToList();
-
-            lines.Sort(new CustomComparer());
-
-            lines.ForEach((line) => Console.WriteLine(line));
+        static async Task Main(string[] args) {
+            var externalSorter = new ExternalSorter(Constants.ChunkSize);
+            await externalSorter.SortAsync("sample.txt");
         }
     }
 }
