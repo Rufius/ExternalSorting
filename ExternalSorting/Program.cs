@@ -1,15 +1,13 @@
-﻿namespace ExternalSorting
-{
-    internal class Program
-    {
+﻿namespace ExternalSorting {
+    internal class Program {
         static void Main(string[] args) {
             Sort("sample.txt");
         }
 
         static void Sort(string filePath) {
             var lines = File.ReadLines(filePath).ToList();
-            
-            lines.Sort();
+
+            lines.Sort(new CustomComparer());
 
             lines.ForEach((line) => Console.WriteLine(line));
         }
