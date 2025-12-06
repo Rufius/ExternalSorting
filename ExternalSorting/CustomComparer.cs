@@ -16,11 +16,11 @@ namespace ExternalSorting {
 
             // split the first line into number and text parts
             int number1 = Convert.ToInt32(line1.Substring(0, separatorIndex1));
-            string text1 = line1.Substring(separatorIndex1+1);
+            string text1 = line1.Substring(separatorIndex1 + 1);
 
             // split the second line into number and text parts
             int number2 = Convert.ToInt32(line2.Substring(0, separatorIndex2));
-            string text2 = line2.Substring(separatorIndex2+1);
+            string text2 = line2.Substring(separatorIndex2 + 1);
 
             // first compare text parts
             int textCompareResult = text1.CompareTo(text2);
