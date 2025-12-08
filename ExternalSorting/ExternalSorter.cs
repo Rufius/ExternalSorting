@@ -1,44 +1,75 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ExternalSorting {
     public class ExternalSorter {
         private readonly int ChunkSize = 0;
+        const int ParallelChunksNumber = 10; // number of chunks being sorted in parallel
+
         int _chunkCount = 0;
         public ExternalSorter(int chunkSize) {
             ChunkSize = chunkSize;
         }
 
         public async Task SortAsync(string filePath) {
-            await SortChunksAsync(filePath);
-            await MergeChunks();
+            SortChunks(filePath);
+            await MergeChunksAsync();
+        }
+        private void SortChunks(string filePath) {
+            var chunks = new BlockingCollection<Chunk>(ParallelChunksNumber);
+
+            // file reader task producing chunks
+            var chunksProducerTask = Task.Run(async () => {
+                await ReadChunksAsync(filePath, chunks);
+            });
+
+            // Sort chunks in parallel. We have ParallelChunksNumber number of sorter worker tasks.
+            var sorterTasks = new Task[ParallelChunksNumber];
+            for (int i = 0; i < ParallelChunksNumber; i++) {
+                sorterTasks[i] = Task.Run(() => {
+                    foreach (var chunk in chunks.GetConsumingEnumerable()) {
+                        chunk.Lines.Sort(new CustomComparer()); // sort the chunk
+                        File.WriteAllLines($"chunk_{chunk.Id}.txt", chunk.Lines); // write into temporary file
+                    }
+                });
+            }
+
+            Task.WaitAll(sorterTasks);
+            chunksProducerTask.Wait();
         }
 
-        private async Task SortChunksAsync(string filePath) {
+        private async Task ReadChunksAsync(string filePath, BlockingCollection<Chunk> chunks) {
             using (var streamReader = new StreamReader(filePath)) {
-                var chunkLines = new List<string>(); //chunk buffer
                 string? line = "";
                 _chunkCount = 0;
+                var chunk = new Chunk(_chunkCount);
 
                 do {
                     line = await streamReader.ReadLineAsync(); // read next line
-                    if (line != null) { chunkLines.Add(line); }
+                    if (line != null) { chunk.Lines.Add(line); }
 
-                    if (chunkLines.Count >= ChunkSize) {
-                        chunkLines.Sort(new CustomComparer()); // sort the chunk
-                        File.WriteAllLines($"chunk_{_chunkCount}.txt", chunkLines); // write into temporary file
-                        _chunkCount++;
-                        chunkLines.Clear(); // clear the buffer
+                    if (chunk.Lines.Count >= ChunkSize) {
+                        chunks.Add(chunk);
+                        chunk = new Chunk(++_chunkCount);
                     }
-
                 } while (line != null);
+
+                // last chunk
+                if (chunk.Lines.Count > 0) { 
+                    chunks.Add(chunk);
+                }
+
+                chunks.CompleteAdding();
             }
         }
 
-        private async Task MergeChunks() {
+        private async Task MergeChunksAsync() {
             // create a priority queue
             var pq = new PriorityQueue<PriorityQueueElement, string>(_chunkCount, new CustomComparer());
 
@@ -53,10 +84,13 @@ namespace ExternalSorting {
                 // read first line of each chunk
                 for (int i = 0; i < _chunkCount; i++) {
                     var line = await chunkStreamReaders[i].ReadLineAsync();
-                    pq.Enqueue(new PriorityQueueElement(line, i), line);
+
+                    if (line != null) {
+                        pq.Enqueue(new PriorityQueueElement(line, i), line);
+                    }
                 }
 
-                // take min element and write into output until PQ is empty
+                // Take min element and write into output until the priority queue is empty.
                 while (pq.Count > 0) {
                     // write minimum element line to the output file
                     var outputElement = pq.Dequeue();
