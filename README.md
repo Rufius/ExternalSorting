@@ -23,5 +23,6 @@ There are two stages:
 - Close all the stream readers and the writer
 
 ## Ways to improve performance
-- Parallelize chunk sorting?
+- Parallelize chunk sorting
+- Leverage multithreading for the merging stage
 - ???
