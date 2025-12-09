@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿using System.Collections.Concurrent;
 
 namespace ExternalSorting {
     public class ExternalSorter {
@@ -61,8 +54,10 @@ namespace ExternalSorting {
                 } while (line != null);
 
                 // last chunk
-                if (chunk.Lines.Count > 0) { 
+                if (chunk.Lines.Count > 0) {
                     chunks.Add(chunk);
+                } else {
+                    _chunkCount--; // the last initiated chunk was empty, so do not count it
                 }
 
                 chunks.CompleteAdding();
@@ -77,12 +72,12 @@ namespace ExternalSorting {
             using (var outputStreamWriter = new StreamWriter("output.txt")) {
                 // initialize stream readers for chunks
                 var chunkStreamReaders = new List<StreamReader>();
-                for (int i = 0; i < _chunkCount; i++) {
+                for (int i = 0; i <= _chunkCount; i++) {
                     chunkStreamReaders.Add(new StreamReader($"chunk_{i}.txt"));
                 }
 
                 // read first line of each chunk
-                for (int i = 0; i < _chunkCount; i++) {
+                for (int i = 0; i <= _chunkCount; i++) {
                     var line = await chunkStreamReaders[i].ReadLineAsync();
 
                     if (line != null) {

@@ -7,10 +7,10 @@
 521. Olive is salty
 482. Apple
 498. Apricot dreams
-527. Jackfruit is huge
+27. Jackfruit is huge
 524. Elderberry syrup vibes
 493. Strawberries forever
-514. Lychee is sweet magic
+3. Lychee is sweet magic
 487. Oranges taste amazing
 522. Clementine daydreams
 523. Quince is tough
@@ -19,12 +19,12 @@
 526. Rambutan with wild hair
 520. Tomato is technically a fruit
 505. Melon is refreshing
-488. Pineapple loves pizza debates
+88. Pineapple loves pizza debates
 512. Raisins are just old grapes
 501. Guava smells strong
 486. Watermelon season is coming
-529. Mango sunset vibes
-513. Avocado is not sweet
+9. Mango sunset vibes
+13. Avocado is not sweet
 491. Grapes can be sour
 489. Kiwi is fuzzy
 492. Blueberries are tiny
@@ -48,3 +48,10 @@
 499. Pears are elegant
 504. Tangerine time
 485. Banana is yellow
+534. Raisins are just old grapes
+774. Guava smells strong
+6246. Watermelon season is coming
+554. Mango sunset vibes
+5. Avocado is not sweet
+9. Grapes can be sour
+10. Kiwi is fuzzy
