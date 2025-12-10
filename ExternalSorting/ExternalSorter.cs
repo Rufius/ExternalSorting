@@ -1,13 +1,17 @@
 ﻿using System.Collections.Concurrent;
+using System.Text;
 
 namespace ExternalSorting {
     public class ExternalSorter {
-        private readonly int ChunkSize = 0;
+        private readonly int ChunkSizeInBytes = 0;
+        private readonly int NewlineBytesCount = 0;
+
         const int ParallelChunksNumber = 10; // number of chunks being sorted in parallel
 
         int _chunkCount = 0;
-        public ExternalSorter(int chunkSize) {
-            ChunkSize = chunkSize;
+        public ExternalSorter(int chunkSizeInBytes) {
+            ChunkSizeInBytes = chunkSizeInBytes;
+            NewlineBytesCount = Encoding.UTF8.GetByteCount(Environment.NewLine);
         }
 
         public async Task SortAsync(string filePath) {
@@ -42,14 +46,19 @@ namespace ExternalSorting {
                 string? line = "";
                 _chunkCount = 0;
                 var chunk = new Chunk(_chunkCount);
+                long currentCnunkSize = 0;
 
                 do {
                     line = await streamReader.ReadLineAsync(); // read next line
-                    if (line != null) { chunk.Lines.Add(line); }
+                    if (line != null) { 
+                        chunk.Lines.Add(line);
+                        currentCnunkSize += Encoding.UTF8.GetByteCount(line) + NewlineBytesCount;
+                    }
 
-                    if (chunk.Lines.Count >= ChunkSize) {
+                    if (currentCnunkSize >= ChunkSizeInBytes) {
                         chunks.Add(chunk);
                         chunk = new Chunk(++_chunkCount);
+                        currentCnunkSize = 0;
                     }
                 } while (line != null);
 
