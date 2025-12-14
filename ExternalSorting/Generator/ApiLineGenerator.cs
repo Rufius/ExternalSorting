@@ -1,15 +1,15 @@
 ﻿using System.Text.Json.Nodes;
 
 namespace ExternalSorting.Generator {
-    public class LineGenerator : ILineGenerator {
-        public async Task<string?> GenerateAsync() {
+    public class ApiLineGenerator : ILineGenerator {
+        public async Task<string> GenerateAsync() {
             string? responseContent = await GetApiResponseContentAsync();
             if (responseContent == null) {
                 throw new Exception("Error fetching data from remote API");
             }
 
             var jArray = JsonArray.Parse(responseContent);
-            return jArray?[0]?["quote"]?.GetValue<string>();
+            return jArray?[0]?["quote"]?.GetValue<string>() ?? string.Empty;
         }
 
         public async Task<string?> GetApiResponseContentAsync() {

@@ -19,8 +19,10 @@ namespace ExternalSorting {
                 } else if (actionKey.KeyChar == 'G' || actionKey.KeyChar == 'g') {
                     _logger.Log(LogLevel.Information, "Generation is starting...");
 
-                    var generator = new FileGenerator(99999, new LineGenerator(), new CustomConsoleLogger());
-                    await generator.Generate("test.txt", 1024);
+                    var generator = new FileGenerator(99999, new RandomLineGenerator(), new CustomConsoleLogger());
+                    await generator.Generate("test.txt", 1024*1024*1);
+
+                    _logger.Log(LogLevel.Information, "The file was generated.");
 
                 } else if (actionKey.KeyChar == 'Q' || actionKey.KeyChar == 'q') {
                     break;

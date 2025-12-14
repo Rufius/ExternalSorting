@@ -5,12 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ExternalSorting.Generator {
     public class FileGenerator {
         private readonly int NewlineBytesCount;
         private readonly int MaxNumber;
-        const int BatchSize = 10;
+        const int NumberOfLinesPerBatch = 10;
         Random _random = new Random();
 
         private readonly ILineGenerator _lineGenerator;
@@ -31,18 +32,21 @@ namespace ExternalSorting.Generator {
                     _logger?.Log(LogLevel.Information, "Generating next batch...");
 
                     // generate a batch of lines
-                    List<string> lines = new List<string>();
-                    for (int i = 0; i < BatchSize; i++) {
-                        _logger?.Log(LogLevel.Information, $"Generating line #{i}");
-                        string line = await GenerateLineAsync();
-                        lines.Add(line);
+                    List<string> texLines = new List<string>();
+                    for (int i = 0; i < NumberOfLinesPerBatch; i++) {
+                        _logger?.Log(LogLevel.Information, $"Generating batch line #{i}");
+                        string? textLine = await _lineGenerator.GenerateAsync();
+                        texLines.Add(textLine);
                     }
 
                     _logger?.Log(LogLevel.Information, "Batch is generated.");
 
                     _logger?.Log(LogLevel.Information, "Writing batch lines to the output file...");
 
-                    foreach (string line in lines) {
+                    // write batch lines to the output file
+                    foreach (string texLine in texLines) {
+                        int number = _random.Next(MaxNumber);
+                        string line = $"{number}. {texLine}";
                         await streamWriter.WriteLineAsync(line);
                         currentSize += Encoding.UTF8.GetByteCount(line) + NewlineBytesCount;
                     }

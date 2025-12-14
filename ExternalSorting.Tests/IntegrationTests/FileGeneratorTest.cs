@@ -9,7 +9,7 @@ namespace ExternalSorting.Tests.IntegrationTests {
     internal class FileGeneratorTest {
         [Test]
         public async Task Generate() {
-            var generator = new FileGenerator(99999, new LineGenerator(), null);
+            var generator = new FileGenerator(99999, new RandomLineGenerator(), null);
             await generator.Generate("test.txt", 1024*1024*1);
         }
     }
