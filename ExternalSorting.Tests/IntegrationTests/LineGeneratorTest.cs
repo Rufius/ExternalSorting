@@ -6,11 +6,14 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ExternalSorting.Tests.IntegrationTests {
-    internal class FileGeneratorTest {
+    internal class LineGeneratorTest {
         [Test]
         public async Task Generate() {
-            var generator = new FileGenerator(99999, new LineGenerator(), null);
-            await generator.Generate("test.txt", 1024*1024*1);
+            var lineGenerator = new LineGenerator();
+            var line = await lineGenerator.GenerateAsync();
+            
+            Assert.IsNotNull(line);
+            Assert.IsNotEmpty(line);
         }
     }
 }
