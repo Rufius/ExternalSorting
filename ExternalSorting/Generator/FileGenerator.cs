@@ -1,5 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ExternalSorting.Generator {
     public class FileGenerator {
@@ -26,15 +32,11 @@ namespace ExternalSorting.Generator {
                     _logger?.Log(LogLevel.Information, "Generating next batch...");
 
                     // generate a batch of lines
-                    List<string> textLines = new List<string>();
-                    int numberOfDuplicates = 1;
-                    for (int i = 0; i < NumberOfLinesPerBatch; i+=numberOfDuplicates) {
+                    List<string> texLines = new List<string>();
+                    for (int i = 0; i < NumberOfLinesPerBatch; i++) {
                         _logger?.Log(LogLevel.Information, $"Generating batch line #{i}");
                         string? textLine = await _lineGenerator.GenerateAsync();
-                        numberOfDuplicates = _random.Next(5); // how many duplicates of this text will be in the file
-                        for (int j = 0; j < numberOfDuplicates; j++) {
-                            textLines.Add(textLine);
-                        }
+                        texLines.Add(textLine);
                     }
 
                     _logger?.Log(LogLevel.Information, "Batch is generated.");
@@ -42,9 +44,9 @@ namespace ExternalSorting.Generator {
                     _logger?.Log(LogLevel.Information, "Writing batch lines to the output file...");
 
                     // write batch lines to the output file
-                    foreach (string textLine in textLines) {
+                    foreach (string texLine in texLines) {
                         int number = _random.Next(MaxNumber);
-                        string line = $"{number}. {textLine}";
+                        string line = $"{number}. {texLine}";
                         await streamWriter.WriteLineAsync(line);
                         currentSize += Encoding.UTF8.GetByteCount(line) + NewlineBytesCount;
                     }
