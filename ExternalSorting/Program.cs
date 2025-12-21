@@ -3,9 +3,8 @@ using Microsoft.Extensions.Logging;
 
 namespace ExternalSorting {
     internal class Program {
-        private static ILogger _logger = new CustomConsoleLogger();
-
         static async Task Main(string[] args) {
+            ILogger _logger = new CustomConsoleLogger();
             var externalSorter = new ExternalSorter(Constants.ChunkSizeInBytes);
             var generator = new FileGenerator(99999, new RandomLineGenerator(), new CustomConsoleLogger());
 
@@ -16,18 +15,33 @@ namespace ExternalSorting {
                 Console.WriteLine();
 
                 if (actionKey.KeyChar == 'S' || actionKey.KeyChar == 's') {
-                    _logger.Log(LogLevel.Information, "Sorting is starting...");
+                    Console.WriteLine("Sorting is starting...");
 
                     await externalSorter.SortAsync("sample.txt");
 
-                    _logger.Log(LogLevel.Information, "Sorting is complete.");
+                    Console.WriteLine("Sorting is complete.");
 
                 } else if (actionKey.KeyChar == 'G' || actionKey.KeyChar == 'g') {
-                    _logger.Log(LogLevel.Information, "Generation is starting...");
+                    Console.Write("Enter the name of the generated file [default - test.txt]: ");
+                    string? fileName = Console.ReadLine();
+                    fileName = string.IsNullOrWhiteSpace(fileName) ? "test.txt" : fileName;
 
-                    await generator.Generate("test.txt", 1024 * 1024 * 500);
+                    Console.Write("Enter the size of the generated file in KB [default - 1 KB]: ");
+                    string? sizeInKbString = Console.ReadLine();
+                    sizeInKbString = string.IsNullOrWhiteSpace(sizeInKbString) ? "1" : sizeInKbString;
+                    int sizeInKb = 0;
 
-                    _logger.Log(LogLevel.Information, "Generation is complete.");
+                    while (!int.TryParse(sizeInKbString, out sizeInKb)) {
+                        Console.Write("The size of the file must be an integer. Enter again please: ");
+                        sizeInKbString = Console.ReadLine();
+                        sizeInKbString = string.IsNullOrWhiteSpace(sizeInKbString) ? "1" : sizeInKbString;
+                    }
+
+                    Console.WriteLine("Generation is starting...");
+
+                    await generator.Generate(fileName, 1024 * sizeInKb);
+
+                    Console.WriteLine("Generation is complete.");
 
                 } else if (actionKey.KeyChar == 'Q' || actionKey.KeyChar == 'q') {
                     break;
