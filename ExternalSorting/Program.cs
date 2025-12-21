@@ -5,10 +5,10 @@ namespace ExternalSorting {
     internal class Program {
         static async Task Main(string[] args) {
             ILogger _logger = new CustomConsoleLogger();
-            var externalSorter = new ExternalSorter(Constants.ChunkSizeInBytes);
-            var generator = new FileGenerator(99999, new RandomLineGenerator(), new CustomConsoleLogger());
 
             while (true) {
+                var externalSorter = new ExternalSorter(Constants.ChunkSizeInBytes);
+
                 Console.Write("Choose action ([S] Sort, [G] Generate file, [Q] Quit): ");
 
                 var actionKey = Console.ReadKey();
@@ -22,19 +22,21 @@ namespace ExternalSorting {
                     Console.WriteLine("Sorting is complete.");
 
                 } else if (actionKey.KeyChar == 'G' || actionKey.KeyChar == 'g') {
+                    var generator = new FileGenerator(99999, new RandomLineGenerator(), new CustomConsoleLogger());
+
                     Console.Write("Enter the name of the generated file [default - test.txt]: ");
                     string? fileName = Console.ReadLine();
                     fileName = string.IsNullOrWhiteSpace(fileName) ? "test.txt" : fileName;
 
-                    Console.Write("Enter the size of the generated file in KB [default - 1 KB]: ");
+                    Console.Write("Enter the size of the generated file in KB [default - 100 KB]: ");
                     string? sizeInKbString = Console.ReadLine();
-                    sizeInKbString = string.IsNullOrWhiteSpace(sizeInKbString) ? "1" : sizeInKbString;
+                    sizeInKbString = string.IsNullOrWhiteSpace(sizeInKbString) ? "100" : sizeInKbString;
                     int sizeInKb = 0;
 
                     while (!int.TryParse(sizeInKbString, out sizeInKb)) {
                         Console.Write("The size of the file must be an integer. Enter again please: ");
                         sizeInKbString = Console.ReadLine();
-                        sizeInKbString = string.IsNullOrWhiteSpace(sizeInKbString) ? "1" : sizeInKbString;
+                        sizeInKbString = string.IsNullOrWhiteSpace(sizeInKbString) ? "100" : sizeInKbString;
                     }
 
                     Console.WriteLine("Generation is starting...");

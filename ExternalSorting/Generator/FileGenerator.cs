@@ -34,10 +34,10 @@ namespace ExternalSorting.Generator {
 
             int currentSize = 0;
 
-            var duplicatesConfig = new DuplicatesConfig(_random, 4, 100);
+            var duplicatesProcessor = new DuplicatesProcessor(_random, 4, 100);
 
             while (currentSize < fileSize) {
-                string text = await GetTextLineAsync(duplicatesConfig); 
+                string text = await GetTextLineAsync(duplicatesProcessor); 
                 int number = _random.Next(MaxNumber);
                 string line = $"{number}. {text}";
 
@@ -47,17 +47,17 @@ namespace ExternalSorting.Generator {
 
                 currentSize += Encoding.UTF8.GetByteCount(line) + NewlineBytesCount;
 
-                duplicatesConfig.TickIteration();
+                duplicatesProcessor.TickIteration();
             }
 
             // make sure that file contains at least one duplicate value
-            _lines.Add($"{_random.Next(MaxNumber)}. {duplicatesConfig.GetDuplicateText()}");
+            _lines.Add($"{_random.Next(MaxNumber)}. {duplicatesProcessor.GetDuplicateText()}");
 
             _lines.CompleteAdding();
             _logger.Log(LogLevel.Information, "Lines generation is complete");
         }
 
-        private async Task<string> GetTextLineAsync(DuplicatesConfig config) {
+        private async Task<string> GetTextLineAsync(DuplicatesProcessor config) {
             var text = string.Empty;
 
             if (config.ShouldInsertDuplicate) {
@@ -66,8 +66,8 @@ namespace ExternalSorting.Generator {
                 // generate new text line
                 text = await _lineGenerator.GenerateAsync();
 
-                // if necessary setup insertion of duplicate values 
-                config.SetUpIfNecessary(text);
+                // setup insertion of a new duplicate value
+                config.SetUpDuplicate(text);
             }
 
             return text;
@@ -86,50 +86,42 @@ namespace ExternalSorting.Generator {
             _logger.Log(LogLevel.Information, "Writing lines is complete");
         }
 
-        private class DuplicatesConfig {
+        private class DuplicatesProcessor {
             private Random _random;
             private readonly int _maxNumberOfIterationsBeforeDuplicate = 0;
             private readonly int _maxNumberOfDuplicates = 0;
-            public DuplicatesConfig(Random random, int maxNumberOfDuplicates, int maxNumberOfIterationsBeforeDuplicate) {
+            public DuplicatesProcessor(Random random, int maxNumberOfDuplicates, int maxNumberOfIterationsBeforeDuplicate) {
                 _random = random;
                 _maxNumberOfDuplicates = maxNumberOfDuplicates;
                 _maxNumberOfIterationsBeforeDuplicate = maxNumberOfIterationsBeforeDuplicate;
+                _numberOfIterationsBeforeInsertingDuplicate = _random.Next(1, _maxNumberOfIterationsBeforeDuplicate);
             }
 
-            public string _duplicateText = string.Empty;
-            public int _numberOfIterationsBeforeInsertingDuplicate = 0;
-            public int _numberOfDuplicateValues = 0;
-            public int _duplicateIterationCounter = 0;
-            public int _duplicateValuesCounter = 0;
-            public bool _isInsertingDuplicates = false;
+            private string _duplicateText = string.Empty;
+            private int _numberOfIterationsBeforeInsertingDuplicate;
+            private int _numberOfDuplicateValues = 0;
+            private int _duplicateIterationCounter = 0;
+            private int _duplicateValuesCounter = 0;
+            public bool ShouldInsertDuplicate => _duplicateIterationCounter >= _numberOfIterationsBeforeInsertingDuplicate;
 
-            public bool ShouldInsertDuplicate => _isInsertingDuplicates && (_duplicateIterationCounter == _numberOfIterationsBeforeInsertingDuplicate);
-
-            public void SetUpIfNecessary(string text) {
-                if (_isInsertingDuplicates) return;
-
-                _duplicateText = text;
-                _numberOfDuplicateValues = _maxNumberOfDuplicates; // how many times to insert this text
-                _numberOfIterationsBeforeInsertingDuplicate = _maxNumberOfIterationsBeforeDuplicate; // insert duplicate value after that many lines
-                _isInsertingDuplicates = true;
+            public void SetUpDuplicate(string text) {                
+                // setup new duplicate value if necessary
+                if (_duplicateValuesCounter >= _numberOfDuplicateValues) {
+                    _duplicateValuesCounter = 0;
+                    _numberOfDuplicateValues = _random.Next(1, _maxNumberOfDuplicates); // how many times to insert this text
+                    _duplicateText = text;
+                }
             }
 
             public string GetDuplicateText() {
-                _duplicateValuesCounter--;
-
-                // reset if necessary
-                if (_duplicateValuesCounter == 0) {
-                    _numberOfIterationsBeforeInsertingDuplicate = 0;
-                    _numberOfDuplicateValues = 0;
-                    _duplicateIterationCounter = 0;
-                    _isInsertingDuplicates = false;
-                }
-
+                _duplicateValuesCounter++;
+                _duplicateIterationCounter = 0;
+                _numberOfIterationsBeforeInsertingDuplicate = _random.Next(1, _maxNumberOfIterationsBeforeDuplicate); // insert duplicate value after that many lines
                 return _duplicateText;
             }
 
             public void TickIteration() {
-                _numberOfIterationsBeforeInsertingDuplicate--;
+                _duplicateIterationCounter++;
             }
         }
     }
