@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ExternalSorting {
+﻿namespace ExternalSorting {
     public class CustomComparer : IComparer<string> {
         public int Compare(string? line1, string? line2) {
             if (line1 == null && line2 == null) return 0;

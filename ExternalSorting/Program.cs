@@ -7,7 +7,7 @@ namespace ExternalSorting {
             ILogger _logger = new CustomConsoleLogger();
 
             while (true) {
-                var externalSorter = new ExternalSorter(Constants.ChunkSizeInBytes);
+                var externalSorter = new ExternalSorter(Constants.ChunkSizeInBytes, Constants.ParallelChunksNumber);
 
                 Console.Write("Choose action ([S] Sort, [G] Generate file, [Q] Quit): ");
 
@@ -41,7 +41,7 @@ namespace ExternalSorting {
 
                     Console.WriteLine("Generation is starting...");
 
-                    await generator.Generate(fileName, 1024 * sizeInKb);
+                    await generator.GenerateAsync(fileName, 1024 * sizeInKb);
 
                     Console.WriteLine("Generation is complete.");
 
