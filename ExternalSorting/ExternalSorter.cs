@@ -1,9 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalSorting {
-    public class ExternalSorter {
+    public class ExternalSorter : IExternalSorter {
         private readonly int ChunkSizeInBytes = 100;
         private readonly int ParallelChunksNumber = 10; // number of chunks being sorted in parallel
         private readonly int NewlineBytesCount = Encoding.UTF8.GetByteCount(Environment.NewLine);

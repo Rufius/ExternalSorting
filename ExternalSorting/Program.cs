@@ -22,7 +22,9 @@ namespace ExternalSorting {
                     Console.WriteLine("Sorting is complete.");
 
                 } else if (actionKey.KeyChar == 'G' || actionKey.KeyChar == 'g') {
-                    var generator = new FileGenerator(99999, new RandomLineGenerator(), new CustomConsoleLogger());
+                    var lineGenerator = new RandomLineGenerator();
+                    var duplicateTextLineProcessor = new DuplicateTextLineProcessor(4, 100, lineGenerator);
+                    var generator = new FileGenerator(99999, duplicateTextLineProcessor, new CustomConsoleLogger());
 
                     Console.Write("Enter the name of the generated file [default - test.txt]: ");
                     string? fileName = Console.ReadLine();

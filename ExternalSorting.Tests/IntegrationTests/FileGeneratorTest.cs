@@ -1,15 +1,12 @@
 ﻿using ExternalSorting.Generator;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalSorting.Tests.IntegrationTests {
     internal class FileGeneratorTest {
         [Test]
         public async Task Generate() {
-            var generator = new FileGenerator(99999, new RandomLineGenerator(), null);
+            var lineGenerator = new RandomLineGenerator();
+            var duplicateTextLineProcessor = new DuplicateTextLineProcessor(4, 100, lineGenerator);
+            var generator = new FileGenerator(99999, duplicateTextLineProcessor, null);
             await generator.GenerateAsync("test.txt", 1024*1024*1);
         }
     }
