@@ -5,7 +5,9 @@ VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExternalSorting", "ExternalSorting.csproj", "{5CE4BE57-F9C4-4EBC-ADD3-A585F336CF2A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExternalSorting.Tests", "..\ExternalSorting.Tests\ExternalSorting.Tests.csproj", "{7395EA4F-742C-423F-878C-A3525D899E05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExternalSorting.Tests", "..\ExternalSorting.Tests\ExternalSorting.Tests.csproj", "{7395EA4F-742C-423F-878C-A3525D899E05}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExternalSorting.ConsoleClient", "..\ExternalSorting.ConsoleClient\ExternalSorting.ConsoleClient.csproj", "{4DB7937C-7934-4EFE-A6C6-CD423C0664EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{7395EA4F-742C-423F-878C-A3525D899E05}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7395EA4F-742C-423F-878C-A3525D899E05}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7395EA4F-742C-423F-878C-A3525D899E05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DB7937C-7934-4EFE-A6C6-CD423C0664EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DB7937C-7934-4EFE-A6C6-CD423C0664EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DB7937C-7934-4EFE-A6C6-CD423C0664EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DB7937C-7934-4EFE-A6C6-CD423C0664EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

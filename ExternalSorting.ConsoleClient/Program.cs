@@ -1,7 +1,7 @@
 ﻿using ExternalSorting.Generator;
 using Microsoft.Extensions.Logging;
 
-namespace ExternalSorting {
+namespace ExternalSorting.ConsoleClient {
     internal class Program {
         static async Task Main(string[] args) {
             ILogger _logger = new CustomConsoleLogger();
