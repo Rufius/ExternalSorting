@@ -1,9 +1,5 @@
 namespace ExternalSorting.Tests {
     public class CustomComparerTest {
-        [SetUp]
-        public void Setup() {
-        }
-
         [Test]
         public void DifferentTextAndDifferentNumbers() {
             const string line1 = "30432. Something something something";
