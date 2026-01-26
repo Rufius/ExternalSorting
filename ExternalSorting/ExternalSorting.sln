@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExternalSorting.Tests", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExternalSorting.ConsoleClient", "..\ExternalSorting.ConsoleClient\ExternalSorting.ConsoleClient.csproj", "{4DB7937C-7934-4EFE-A6C6-CD423C0664EF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExternalSorting.Benchmark", "..\ExternalSorting.Benchmark\ExternalSorting.Benchmark.csproj", "{328AF351-104E-4ABE-80F1-87BFAC309BEE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{4DB7937C-7934-4EFE-A6C6-CD423C0664EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4DB7937C-7934-4EFE-A6C6-CD423C0664EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4DB7937C-7934-4EFE-A6C6-CD423C0664EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{328AF351-104E-4ABE-80F1-87BFAC309BEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{328AF351-104E-4ABE-80F1-87BFAC309BEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{328AF351-104E-4ABE-80F1-87BFAC309BEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{328AF351-104E-4ABE-80F1-87BFAC309BEE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,35 +1,46 @@
-﻿using System.Collections.Concurrent;
+﻿using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 using System.Text;
 
 namespace ExternalSorting {
     public class ExternalSorter : IExternalSorter {
-        private readonly int ChunkSizeInBytes = 100;
-        private readonly int ParallelChunksNumber = 10; // number of chunks being sorted in parallel
+        private int _chunkSizeInBytes = 100;
+        private int _parallelChunksNumber = 10; // number of chunks being sorted in parallel
         private readonly int NewlineBytesCount = Encoding.UTF8.GetByteCount(Environment.NewLine);
 
         private int _chunkCount = 0;
 
-        public ExternalSorter() {}
+        private readonly ILogger _logger;
 
-        public ExternalSorter(int chunkSizeInBytes, int parallelChunksNumber) {
-            ChunkSizeInBytes = chunkSizeInBytes;
-            ParallelChunksNumber = parallelChunksNumber;
+        public int ChunkSizeInBytes { get => _chunkSizeInBytes; set => _chunkSizeInBytes = value; }
+        public int ParallelChunksNumber { get => _parallelChunksNumber; set => _parallelChunksNumber = value; }
+
+        public ExternalSorter(ILogger logger) {
+            _logger = logger;
         }
 
-        public async Task SortAsync(string filePath) {
-            await SortChunksAsync(filePath);
-            await MergeChunksAsync();
+        public ExternalSorter(int chunkSizeInBytes, int parallelChunksNumber, ILogger logger) {
+            _chunkSizeInBytes = chunkSizeInBytes;
+            _parallelChunksNumber = parallelChunksNumber;
+            _logger = logger;
+        }
+
+        public async Task SortAsync(string inputFilePath, string outputFilePath) {
+            await SortChunksAsync(inputFilePath);
+            await MergeChunksAsync(outputFilePath);
         }
 
         private async Task SortChunksAsync(string filePath) {
-            var chunks = new BlockingCollection<Chunk>(ParallelChunksNumber);
+            _logger?.Log(LogLevel.Information, "Sorting chunks is starting");
+
+            var chunks = new BlockingCollection<Chunk>(_parallelChunksNumber);
 
             // file reader task producing chunks
             var chunkProducerTask = Task.Run(async () => await ReadChunksAsync(filePath, chunks));
 
             // Sort chunks in parallel. We have ParallelChunksNumber number of sorter worker tasks.
-            var sorterTasks = new Task[ParallelChunksNumber];
-            for (int i = 0; i < ParallelChunksNumber; i++) {
+            var sorterTasks = new Task[_parallelChunksNumber];
+            for (int i = 0; i < _parallelChunksNumber; i++) {
                 sorterTasks[i] = Task.Run(async () => {
                     foreach (var chunk in chunks.GetConsumingEnumerable()) {
                         chunk.Lines.Sort(new CustomComparer()); // sort the chunk
@@ -47,16 +58,22 @@ namespace ExternalSorting {
                 string? line = "";
                 _chunkCount = 0;
                 long currentCnunkSize = 0;
+
+                _logger?.Log(LogLevel.Information, $"Initializing chunk # {_chunkCount}");
                 var chunk = new Chunk(_chunkCount); // initialize the first chunk
-                
+
                 while ((line = await streamReader.ReadLineAsync()) != null) {
+                    _logger?.Log(LogLevel.Information, $"Reading line '{line}' into chunk # {chunk.Id}");
+
                     chunk.Lines.Add(line);
                     currentCnunkSize += Encoding.UTF8.GetByteCount(line) + NewlineBytesCount;
 
                     // if the chunk is full add it to the queue and initialize a new chunk
-                    if (currentCnunkSize >= ChunkSizeInBytes) {
+                    if (currentCnunkSize >= _chunkSizeInBytes) {
                         chunks.Add(chunk);
-                        chunk = new Chunk(++_chunkCount);
+
+                        _logger?.Log(LogLevel.Information, $"Initializing chunk # {++_chunkCount}");
+                        chunk = new Chunk(_chunkCount);
                         currentCnunkSize = 0;
                     }
                 }
@@ -69,24 +86,29 @@ namespace ExternalSorting {
                 }
 
                 chunks.CompleteAdding();
+                _logger?.Log(LogLevel.Information, $"Reading lines into chunks is completed");
             }
         }
 
-        private async Task MergeChunksAsync() {
+        private async Task MergeChunksAsync(string outputFilePath) {
+            _logger?.Log(LogLevel.Information, "Merging chunks is starting");
+
             // create a priority queue
             var pq = new PriorityQueue<PriorityQueueElement, string>(_chunkCount, new CustomComparer());
 
             // output stream writer
-            using (var outputStreamWriter = new StreamWriter("output.txt")) {
+            using (var outputStreamWriter = new StreamWriter(outputFilePath)) {
                 // initialize stream readers for chunks
                 var chunkStreamReaders = new List<StreamReader>();
                 for (int i = 0; i <= _chunkCount; i++) {
+                    _logger?.Log(LogLevel.Information, $"Reading chunk # {i} is starting");
                     chunkStreamReaders.Add(new StreamReader($"chunk_{i}.txt"));
                 }
 
                 // read first line of each chunk
                 for (int i = 0; i <= _chunkCount; i++) {
                     var line = await chunkStreamReaders[i].ReadLineAsync();
+                    _logger?.Log(LogLevel.Information, $"Reading line '{line}' from chunk # {i}");
 
                     if (line != null) {
                         pq.Enqueue(new PriorityQueueElement(line, i), line);
@@ -97,6 +119,7 @@ namespace ExternalSorting {
                 while (pq.Count > 0) {
                     // write minimum element line to the output file
                     var outputElement = pq.Dequeue();
+                    _logger?.Log(LogLevel.Information, $"Writing line '{outputElement.Line}' to output file");
                     outputStreamWriter.WriteLine(outputElement.Line);
 
                     // replace it with the next line from the same chunk
@@ -108,6 +131,8 @@ namespace ExternalSorting {
 
                 // dispose all readers
                 chunkStreamReaders.ForEach(streamReader => streamReader.Dispose());
+
+                _logger?.Log(LogLevel.Information, "Merging chunks is completed");
             }
         }
     }

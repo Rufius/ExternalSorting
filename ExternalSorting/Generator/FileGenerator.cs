@@ -36,7 +36,7 @@ namespace ExternalSorting.Generator {
             int currentSize = 0;
             string text = string.Empty;
             while (currentSize < fileSize) {
-                text = await _textLineProcessor.GetTextLineAsync(); 
+                text = await _textLineProcessor.GetTextLineAsync();
                 int number = _random.Next(MaxNumber);
                 string line = $"{number}. {text}";
 
@@ -51,7 +51,7 @@ namespace ExternalSorting.Generator {
             _lines.Add($"{_random.Next(MaxNumber)}. {text}");
 
             _lines.CompleteAdding();
-            _logger?.Log(LogLevel.Information, "Lines generation is complete");
+            _logger?.Log(LogLevel.Information, "Lines generation is completed");
         }
 
         private async Task WriteLinesAsync(string filePath) {
@@ -64,7 +64,7 @@ namespace ExternalSorting.Generator {
                 }
             }
 
-            _logger?.Log(LogLevel.Information, "Writing lines is complete");
+            _logger?.Log(LogLevel.Information, "Writing lines is completed");
         }
     }
 }
