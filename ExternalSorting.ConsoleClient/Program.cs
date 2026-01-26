@@ -10,8 +10,11 @@ namespace ExternalSorting.ConsoleClient {
 
             // setup file generator
             var lineGenerator = new RandomLineGenerator();
-            var duplicateTextLineProcessor = new DuplicateTextLineProcessor(4, 100, lineGenerator);
-            var generator = new FileGenerator(99999, duplicateTextLineProcessor, logger);
+            var duplicateTextLineProcessor = new DuplicateTextLineProcessor(
+                Constants.MaxNumberOfLineDuplicates,
+                Constants.MaxNumberOfIterationsBeforeInsertingDuplicate,
+                lineGenerator);
+            var generator = new FileGenerator(Constants.MaxNumber, duplicateTextLineProcessor, logger);
 
             var stopwatch = new Stopwatch();
 
@@ -81,9 +84,12 @@ namespace ExternalSorting.ConsoleClient {
 
                     Console.WriteLine("Generation is starting...");
 
+                    stopwatch.Restart();
                     await generator.GenerateAsync(fileName, 1024 * sizeInKb);
+                    stopwatch.Stop();
 
-                    Console.WriteLine("Generation is complete.");
+                    Console.WriteLine("Generation is completed.");
+                    Console.WriteLine("Time elapsed: " + stopwatch.Elapsed.ToString());
 
                 } else if (actionKey.KeyChar == 'Q' || actionKey.KeyChar == 'q') {
                     break;
